@@ -77,11 +77,18 @@ public class SimulasiAntrian extends JFrame {
             }
 
             String[] data = queue.poll();
-            String teks = "Nomor " + data[0] + " atas nama " + data[1] + ", silakan ke loket";
+            String teks = "Nomor antrian " + data[0] +
+                          ", atas nama " + data[1] +
+                          ", silakan menuju loket";
 
+            // bunyi "ting"
+            Toolkit.getDefaultToolkit().beep();
+
+            // popup
             JOptionPane.showMessageDialog(null, teks);
 
-            speak(teks); 
+            // suara dijalankan di thread (agar tidak freeze)
+            new Thread(() -> speak(teks)).start();
 
             updateTextArea();
         });
@@ -96,17 +103,17 @@ public class SimulasiAntrian extends JFrame {
         }
     }
 
-    // ===== TEXT TO SPEECH (LINUX - STABIL) =====
+    // ===== TEXT TO SPEECH (WINDOWS - TANPA INSTALL) =====
     public void speak(String text) {
         try {
-            String safeText = text.replace("\"", "");
+            // escape tanda kutip
+            text = text.replace("'", "");
 
-            ProcessBuilder pb = new ProcessBuilder(
-                    "espeak", "-s", "120", "-p", "50", "-v", "id", safeText
-            );
+            String command = "PowerShell -Command \"Add-Type -AssemblyName System.Speech; " +
+                    "$speak = New-Object System.Speech.Synthesis.SpeechSynthesizer; " +
+                    "$speak.Speak('" + text + "');\"";
 
-            Process process = pb.start();
-            process.waitFor(); // ⬅️ tunggu sampai suara selesai
+            Runtime.getRuntime().exec(command);
 
         } catch (Exception e) {
             e.printStackTrace();
