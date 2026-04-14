@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 from collections import deque
-import os
-import time
+import pyttsx3
+
 
 # CLASS CUSTOMER
 class Customer:
@@ -27,7 +27,7 @@ class Antrian:
         if self.queue:
             return self.queue.popleft()  # FIFO
         return None
-
+    
     def get_all(self):
         return list(self.queue)
 
@@ -35,18 +35,15 @@ class Antrian:
         return len(self.queue) == 0
 
 
-# CLASS SUARA (FESTIVAL)
 class Suara:
     def bicara(self, nomor, nama):
-        # Panggilan bertahap seperti di bank
-        os.system(f'echo "Nomor antrian {nomor}" | festival --tts')
-        time.sleep(0.5)
+        engine = pyttsx3.init()  # 🔥 buat engine baru setiap panggil
+        engine.setProperty('rate', 150)
 
-        os.system(f'echo "Atas nama {nama}" | festival --tts')
-        time.sleep(0.5)
-
-        os.system('echo "Silakan menuju loket" | festival --tts')
-
+        teks = f"Nomor antrian {nomor}, atas nama {nama}, silakan menuju loket"
+        engine.say(teks)
+        engine.runAndWait()
+        engine.stop()
 
 # GUI
 class SimulasiAntrian:
@@ -74,6 +71,7 @@ class SimulasiAntrian:
         # OUTPUT
         self.text_area = tk.Text(root, height=15)
         self.text_area.pack()
+        
 
     # FUNCTION
     def ambil(self):
